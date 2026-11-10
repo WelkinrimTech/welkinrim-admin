@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import type { Product, SupabaseProduct, PerfRow, SpecItem, ProductCategory } from '@/lib/products';
+import type { Product, SupabaseProduct, ProductCategory } from '@/lib/products';
 import { getCategoryFromSeries } from '@/lib/products';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -30,14 +30,15 @@ export function useProducts() {
   const [products, setProducts] = useState<SupabaseProduct[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const loadFromSupabase = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
+  const fetchProducts = useCallback(async () => {
+    return supabase
       .from('products')
       .select('*')
       .eq('is_deleted', false)
       .order('created_at', { ascending: false });
+  }, []);
 
+  const applyProducts = useCallback(({ data, error }: Awaited<ReturnType<typeof fetchProducts>>) => {
     if (error) {
       console.error('Error loading products from Supabase', error);
       setProducts([]);
@@ -49,7 +50,7 @@ export function useProducts() {
     const mapped = (data as ProductRow[]).map(row => ({
       ...row.data,
       id: row.id,
-      category: row.category as any,
+      category: row.category as ProductCategory,
       created_at: row.created_at,
       updated_at: row.updated_at,
       is_published: row.is_published,
@@ -60,9 +61,16 @@ export function useProducts() {
     setLoading(false);
   }, []);
 
+  // Reload with the loading flag raised (used after mutations and on refresh)
+  const loadFromSupabase = useCallback(async () => {
+    setLoading(true);
+    applyProducts(await fetchProducts());
+  }, [fetchProducts, applyProducts]);
+
+  // Initial load: `loading` already starts true, so state is only set once the fetch resolves
   useEffect(() => {
-    void loadFromSupabase();
-  }, [loadFromSupabase]);
+    void fetchProducts().then(applyProducts);
+  }, [fetchProducts, applyProducts]);
 
   const refresh = useCallback(() => {
     void loadFromSupabase();
@@ -220,7 +228,7 @@ export function useProducts() {
     return (data as ProductRow[]).map(row => ({
       ...row.data,
       id: row.id,
-      category: row.category as any,
+      category: row.category as ProductCategory,
       created_at: row.created_at,
       updated_at: row.updated_at,
       is_published: row.is_published,
@@ -244,7 +252,7 @@ export function useProducts() {
     return (data as ProductRow[]).map(row => ({
       ...row.data,
       id: row.id,
-      category: row.category as any,
+      category: row.category as ProductCategory,
       created_at: row.created_at,
       updated_at: row.updated_at,
       is_published: row.is_published,

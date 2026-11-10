@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Sidebar } from '@/components/ui/Sidebar';
 import { Header } from '@/components/ui/Header';
-import { initializeProducts } from '@/lib/storage';
 
 export default function DashboardLayout({
   children,
@@ -14,16 +13,12 @@ export default function DashboardLayout({
 }) {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
-  const [isInitialized, setIsInitialized] = useState(false);
+  const isInitialized = !isLoading && isAuthenticated;
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       console.log('Redirecting to login - not authenticated');
       router.push('/login');
-    }
-    if (!isLoading && isAuthenticated) {
-      console.log('User authenticated, showing dashboard');
-      setIsInitialized(true);
     }
   }, [isAuthenticated, isLoading, router]);
 

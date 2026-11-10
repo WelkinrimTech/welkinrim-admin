@@ -7,11 +7,23 @@ export interface SpecItem {
   value: string;
 }
 
+interface ProductData {
+  keySpecs?: SpecItem[];
+  allSpecs?: SpecItem[];
+  [key: string]: unknown;
+}
+
+/** Product-like input: either a row wrapping `data`, or the data object itself. */
+function toData(product: unknown): ProductData | undefined {
+  const p = product as { data?: ProductData } | null | undefined;
+  return (p?.data || p) as ProductData | undefined;
+}
+
 /**
  * Extract a spec value from keySpecs or allSpecs array
  */
-export function getSpecValue(product: any, label: string): string | null {
-  const data = product?.data || product;
+export function getSpecValue(product: unknown, label: string): string | null {
+  const data = toData(product);
   
   // Try keySpecs first
   if (data?.keySpecs && Array.isArray(data.keySpecs)) {
@@ -30,14 +42,14 @@ export function getSpecValue(product: any, label: string): string | null {
   }
   
   // Fallback to direct property
-  return data?.[label] || null;
+  return (data?.[label] as string | undefined) || null;
 }
 
 /**
  * Extract KV rating from specs
  */
-export function getKV(product: any): string {
-  const data = product?.data || product;
+export function getKV(product: unknown): string {
+  const data = toData(product);
   
   // Direct property
   if (data?.kv) return String(data.kv);
@@ -52,11 +64,11 @@ export function getKV(product: any): string {
 /**
  * Extract voltage from specs
  */
-export function getVoltage(product: any): string {
-  const data = product?.data || product;
+export function getVoltage(product: unknown): string {
+  const data = toData(product);
   
   // Direct property
-  if (data?.voltage) return data.voltage;
+  if (data?.voltage) return String(data.voltage);
   
   // From specs - check multiple possible labels
   const voltageLabels = ['voltage', 'battery', 'recommended battery'];
@@ -71,11 +83,11 @@ export function getVoltage(product: any): string {
 /**
  * Extract peak thrust from specs
  */
-export function getPeakThrust(product: any): string {
-  const data = product?.data || product;
+export function getPeakThrust(product: unknown): string {
+  const data = toData(product);
   
   // Direct property
-  if (data?.peakThrust) return data.peakThrust;
+  if (data?.peakThrust) return String(data.peakThrust);
   
   // From specs
   const thrustLabels = ['peak thrust', 'thrust', 'max thrust'];
@@ -90,8 +102,8 @@ export function getPeakThrust(product: any): string {
 /**
  * Extract weight from specs
  */
-export function getWeight(product: any): string {
-  const data = product?.data || product;
+export function getWeight(product: unknown): string {
+  const data = toData(product);
   
   // Direct property
   if (data?.weight) return String(data.weight);
@@ -111,8 +123,8 @@ export function getWeight(product: any): string {
 /**
  * Extract continuous current from specs (for ESCs)
  */
-export function getContinuousCurrent(product: any): string {
-  const data = product?.data || product;
+export function getContinuousCurrent(product: unknown): string {
+  const data = toData(product);
   
   // Direct property
   if (data?.continuousCurrent) return String(data.continuousCurrent);

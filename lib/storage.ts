@@ -53,7 +53,7 @@ export const storage = {
  * Initialize products data from client project
  */
 export function initializeProducts(): void {
-  const existing = storage.get<any[]>('products', []);
+  const existing = storage.get<unknown[]>('products', []);
   if (existing && existing.length > 0) {
     return; // Already initialized
   }

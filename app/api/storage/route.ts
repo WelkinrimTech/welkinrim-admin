@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin, isErrorResponse } from '@/lib/apiAuth';
 
+interface BucketOptionsInput {
+  public: boolean;
+  // supabase-js expects camelCase here and maps it to file_size_limit /
+  // allowed_mime_types itself; snake_case keys were silently ignored.
+  fileSizeLimit?: number | string | null;
+  allowedMimeTypes?: string[] | null;
+}
+
 export async function GET(request: NextRequest) {
   const ctx = await requireAdmin(request);
   if (isErrorResponse(ctx)) return ctx;
@@ -70,16 +78,16 @@ export async function POST(request: NextRequest) {
 
     // Create bucket with configuration
     if (action === 'createBucket') {
-      const options: any = {
+      const options: BucketOptionsInput = {
         public: isPublic ?? true,
       };
 
       if (fileSizeLimit) {
-        options.file_size_limit = fileSizeLimit;
+        options.fileSizeLimit = fileSizeLimit;
       }
 
       if (allowedMimeTypes && Array.isArray(allowedMimeTypes)) {
-        options.allowed_mime_types = allowedMimeTypes;
+        options.allowedMimeTypes = allowedMimeTypes;
       }
 
       const { data, error } = await supabaseAdmin.storage.createBucket(bucket, options);
@@ -92,16 +100,16 @@ export async function POST(request: NextRequest) {
 
     // Update bucket configuration
     if (action === 'updateBucket') {
-      const options: any = {
+      const options: BucketOptionsInput = {
         public: isPublic,
       };
 
       if (fileSizeLimit !== undefined) {
-        options.file_size_limit = fileSizeLimit;
+        options.fileSizeLimit = fileSizeLimit;
       }
 
       if (allowedMimeTypes && Array.isArray(allowedMimeTypes)) {
-        options.allowed_mime_types = allowedMimeTypes;
+        options.allowedMimeTypes = allowedMimeTypes;
       }
 
       const { data, error } = await supabaseAdmin.storage.updateBucket(bucket, options);

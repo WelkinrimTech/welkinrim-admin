@@ -23,7 +23,14 @@ export async function GET() {
     }
 
     // Transform to client format
-    const seriesConfig: Record<string, any> = {};
+    const seriesConfig: Record<string, {
+      label: string;
+      useSvgLogo: boolean;
+      logoSrc: string | null;
+      accent: string;
+      textOnAccent: string;
+      iconUrl: string | null;
+    }> = {};
     data.forEach((s) => {
       seriesConfig[s.id] = {
         label: s.label,

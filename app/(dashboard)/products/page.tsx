@@ -10,8 +10,7 @@ import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { ProductTableSkeleton } from '@/components/loading/SkeletonLoader';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { supabase } from '@/lib/supabaseClient';
-import type { Product, SupabaseProduct, ProductSeries } from '@/lib/products';
-import { createEmptyProduct } from '@/lib/products';
+import type { Product, SupabaseProduct } from '@/lib/products';
 import { useToast } from '@/context/ToastContext';
 
 type CategoryFilter = string; // 'all' or a series id

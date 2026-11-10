@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import { useProducts } from '@/hooks/useProducts';
-import { useSeries } from '@/hooks/useSeries';
+import { useSeries, type Series } from '@/hooks/useSeries';
 import type { SupabaseProduct } from '@/lib/products';
 import { ProductDetailModal } from '@/components/products/ProductDetailModal';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -13,21 +13,17 @@ export default function TrashPage() {
   const { getDeleted: getDeletedSeries, restore: restoreSeries, remove: removeSeries } = useSeries();
 
   const [deletedProducts, setDeletedProducts] = useState<SupabaseProduct[]>([]);
-  const [deletedSeries, setDeletedSeries] = useState<any[]>([]);
+  const [deletedSeries, setDeletedSeries] = useState<Series[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'products' | 'series'>('products');
 
   // View details modal
   const [viewingProduct, setViewingProduct] = useState<SupabaseProduct | null>(null);
-  const [viewingSeries, setViewingSeries] = useState<any | null>(null);
+  const [viewingSeries, setViewingSeries] = useState<Series | null>(null);
 
   // Confirm dialogs
   const [showDeleteProductConfirm, setShowDeleteProductConfirm] = useState<string | null>(null);
   const [showDeleteSeriesConfirm, setShowDeleteSeriesConfirm] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadDeleted();
-  }, []);
 
   const loadDeleted = async () => {
     setLoading(true);
@@ -37,6 +33,11 @@ export default function TrashPage() {
     setDeletedSeries(series);
     setLoading(false);
   };
+
+  useEffect(() => {
+    loadDeleted();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only load
+  }, []);
 
   const handleRestoreProduct = async (id: string) => {
     const success = await restore(id);
@@ -424,8 +425,8 @@ function ViewIcon() {
   );
 }
 
-function SeriesDetailModal({ series, onClose }: { series: any; onClose: () => void }) {
-  const formatDate = (date: string | undefined) => {
+function SeriesDetailModal({ series, onClose }: { series: Series; onClose: () => void }) {
+  const formatDate = (date: string | null | undefined) => {
     if (!date) return '—';
     return new Date(date).toLocaleString('en-US', {
       month: 'short',

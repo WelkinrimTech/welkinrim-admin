@@ -32,13 +32,14 @@ export function useEnquiries() {
     spam: 0,
   });
 
-  const loadFromSupabase = useCallback(async () => {
-    setLoading(true);
-    const { data, error } = await supabase
+  const fetchEnquiries = useCallback(async () => {
+    return supabase
       .from('enquiries')
       .select('*')
       .order('created_at', { ascending: false });
+  }, []);
 
+  const applyEnquiries = useCallback(({ data, error }: Awaited<ReturnType<typeof fetchEnquiries>>) => {
     if (error) {
       console.error('Error loading enquiries from Supabase', error);
       setEnquiries([]);
@@ -62,9 +63,16 @@ export function useEnquiries() {
     setLoading(false);
   }, []);
 
+  // Reload with the loading flag raised (used after mutations and on refresh)
+  const loadFromSupabase = useCallback(async () => {
+    setLoading(true);
+    applyEnquiries(await fetchEnquiries());
+  }, [fetchEnquiries, applyEnquiries]);
+
+  // Initial load: `loading` already starts true, so state is only set once the fetch resolves
   useEffect(() => {
-    void loadFromSupabase();
-  }, [loadFromSupabase]);
+    void fetchEnquiries().then(applyEnquiries);
+  }, [fetchEnquiries, applyEnquiries]);
 
   const refresh = useCallback(() => {
     void loadFromSupabase();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Product, SupabaseProduct, getProductDomain, ProductSeries, getWeight, getSegments, SEGMENT_OPTIONS } from '@/lib/products';
+import { SupabaseProduct, getProductDomain, getWeight, getSegments, SEGMENT_OPTIONS } from '@/lib/products';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 
 interface ProductTableProps {

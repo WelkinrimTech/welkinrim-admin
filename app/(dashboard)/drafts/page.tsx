@@ -16,16 +16,17 @@ export default function DraftsPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadDrafts();
-  }, []);
-
   const loadDrafts = async () => {
     setLoading(true);
     const data = await getDrafts();
     setDrafts(data);
     setLoading(false);
   };
+
+  useEffect(() => {
+    loadDrafts();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only load
+  }, []);
 
   const publishDraft = async (id: string) => {
     const success = await publish(id);

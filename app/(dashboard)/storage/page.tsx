@@ -22,7 +22,7 @@ interface FileItem {
   created_at: string | null;
   updated_at?: string | null;
   size?: number;
-  metadata?: Record<string, any> | null;
+  metadata?: Record<string, unknown> | null;
 }
 
 export default function StoragePage() {
@@ -51,10 +51,6 @@ export default function StoragePage() {
   const [bucketAllowedMimeTypes, setBucketAllowedMimeTypes] = useState<string>('');
   const [savingBucket, setSavingBucket] = useState(false);
 
-  useEffect(() => {
-    loadBuckets();
-  }, []);
-
   const loadBuckets = async () => {
     setLoadingBuckets(true);
     const response = await authFetch('/api/storage?action=listBuckets');
@@ -68,6 +64,11 @@ export default function StoragePage() {
     }
     setLoadingBuckets(false);
   };
+
+  useEffect(() => {
+    loadBuckets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional mount-only load
+  }, []);
 
   const loadFiles = async (bucketName: string) => {
     setLoadingFiles(true);
@@ -496,7 +497,7 @@ export default function StoragePage() {
                             />
                           </td>
                           <td className="file-name">{file.name}</td>
-                          <td className="mono">{formatFileSize(file.metadata?.size || file.size)}</td>
+                          <td className="mono">{formatFileSize((file.metadata?.size as number | undefined) || file.size)}</td>
                           <td className="mono">{file.created_at ? new Date(file.created_at).toLocaleDateString() : '—'}</td>
                           <td className="actions-cell">
                             {activeBucket.public && (

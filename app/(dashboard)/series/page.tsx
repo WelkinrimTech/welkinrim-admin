@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSeries } from '@/hooks/useSeries';
 import { useProducts } from '@/hooks/useProducts';
 import type { Series } from '@/hooks/useSeries';

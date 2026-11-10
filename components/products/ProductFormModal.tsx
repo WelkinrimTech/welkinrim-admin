@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useProductActions } from '@/hooks/useProductActions';
 import { useSeries } from '@/hooks/useSeries';
 import { uploadProductThumbnail, uploadProductIcon, uploadProductWireframe } from '@/lib/imageUpload';
-import type { Product, PerfRow, SpecItem, ProductSeries } from '@/lib/products';
+import type { Product, PerfRow, ProductSeries } from '@/lib/products';
 import { createEmptyProduct, getSeriesLabel, getDefaultTag, getCategoryFromSeries, getDefaultSegments, getSegments, SEGMENT_OPTIONS } from '@/lib/products';
 import type { ProductCategory } from '@/lib/products';
 
@@ -67,7 +67,7 @@ export function ProductFormModal({ product, onClose }: ProductFormModalProps) {
     return () => window.removeEventListener('keydown', handler);
   }, [isSaving, onClose]);
 
-  const handleChange = useCallback((field: string, value: any) => {
+  const handleChange = useCallback((field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (errors[field]) setErrors(prev => { const n = { ...prev }; delete n[field]; return n; });
   }, [errors]);
@@ -797,7 +797,7 @@ export function ProductFormModal({ product, onClose }: ProductFormModalProps) {
               <button
                 type="button"
                 className="btn btn-draft"
-                onClick={(e) => handleSubmit(e as any, true)}
+                onClick={(e) => handleSubmit(e, true)}
                 disabled={isSaving}
               >
                 {isSaving ? 'Saving...' : 'Save as Draft'}

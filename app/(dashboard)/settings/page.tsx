@@ -82,13 +82,6 @@ export default function SettingsPage() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showClearCacheConfirm, setShowClearCacheConfirm] = useState(false);
 
-  useEffect(() => {
-    loadProfile();
-    if (isSuperAdmin) {
-      loadAdminUsers();
-    }
-  }, [user, isSuperAdmin]);
-
   const loadProfile = async () => {
     if (!user) return;
     setLoadingProfile(true);
@@ -135,6 +128,14 @@ export default function SettingsPage() {
     }
     setLoadingAdmins(false);
   };
+
+  useEffect(() => {
+    loadProfile();
+    if (isSuperAdmin) {
+      loadAdminUsers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loaders are recreated each render; rerun only when user/role changes
+  }, [user, isSuperAdmin]);
 
   const saveProfile = async () => {
     if (!user || !profile) return;
@@ -842,7 +843,7 @@ export default function SettingsPage() {
                 />
               </div>
 
-              <p className="modal-hint">After changing your password, you'll need to sign in again.</p>
+              <p className="modal-hint">After changing your password, you&apos;ll need to sign in again.</p>
             </div>
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={() => setShowPasswordModal(false)}>

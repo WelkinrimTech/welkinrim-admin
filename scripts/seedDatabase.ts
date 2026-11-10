@@ -62,6 +62,7 @@ const SERIES_DATA = [
 
 // Import all products from client data
 // This is a simplified version - in production, you'd import from the actual products.ts file
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- one-off script loads a sibling repo's TS file synchronously; static import path is outside this project
 const PRODUCTS_DATA = require('../../../WelkinrimTech/src/data/products.ts').PRODUCTS || [];
 
 async function seedSeries() {

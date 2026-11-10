@@ -36,24 +36,15 @@ export default function DashboardPage() {
   const [loadingActivity, setLoadingActivity] = useState(true);
   const [loadingStorage, setLoadingStorage] = useState(true);
 
-  useEffect(() => {
-    refreshProducts();
-    refreshSeries();
-    refreshEnquiries();
-    loadRecentActivity();
-    loadStorageStats();
-    setIsLoaded(true);
-  }, [refreshProducts, refreshSeries, refreshEnquiries]);
+  // `loadingActivity` starts true, so it is not re-raised here (effect runs on mount)
+  // Get recent products as activity proxy
+  const fetchRecentActivity = () => supabase
+    .from('products')
+    .select('id, model, name, updated_at, created_at')
+    .order('updated_at', { ascending: false })
+    .limit(5);
 
-  const loadRecentActivity = async () => {
-    setLoadingActivity(true);
-    // Get recent products as activity proxy
-    const { data: recentProducts } = await supabase
-      .from('products')
-      .select('id, model, name, updated_at, created_at')
-      .order('updated_at', { ascending: false })
-      .limit(5);
-
+  const applyRecentActivity = ({ data: recentProducts }: Awaited<ReturnType<typeof fetchRecentActivity>>) => {
     if (recentProducts) {
       const activity: ActivityLog[] = recentProducts.map(p => ({
         id: p.id,
@@ -70,8 +61,8 @@ export default function DashboardPage() {
     setLoadingActivity(false);
   };
 
-  const loadStorageStats = async () => {
-    setLoadingStorage(true);
+  // `loadingStorage` starts true, so it is not re-raised here (effect runs on mount)
+  const fetchStorageStats = async (): Promise<StorageStats[] | null> => {
     try {
       const buckets = ['product-icons', 'product-images'];
       const stats: StorageStats[] = [];
@@ -87,12 +78,27 @@ export default function DashboardPage() {
         }
       }
 
-      setStorageStats(stats);
+      return stats;
     } catch (e) {
       console.error('Failed to load storage stats:', e);
+      return null;
     }
+  };
+
+  const applyStorageStats = (stats: StorageStats[] | null) => {
+    if (stats) setStorageStats(stats);
     setLoadingStorage(false);
   };
+
+  useEffect(() => {
+    refreshProducts();
+    refreshSeries();
+    refreshEnquiries();
+    void fetchRecentActivity().then(applyRecentActivity);
+    void fetchStorageStats().then(applyStorageStats);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount gate: render nothing until the first client effect has run
+    setIsLoaded(true);
+  }, [refreshProducts, refreshSeries, refreshEnquiries]);
 
   if (!isLoaded || !products) {
     return null;

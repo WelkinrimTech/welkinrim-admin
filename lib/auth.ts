@@ -37,7 +37,7 @@ export const auth = {
     return user;
   },
 
-  async buildUser(id: string, email: string, metadata?: Record<string, any>): Promise<User | null> {
+  async buildUser(id: string, email: string, metadata?: Record<string, string | undefined>): Promise<User | null> {
     // Fetch user profile to get is_super_admin status
     const { data: profile } = await supabase
       .from('user_profiles')

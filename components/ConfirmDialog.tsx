@@ -28,18 +28,14 @@ export function ConfirmDialog({
   onCancel,
 }: ConfirmDialogProps) {
   const [typedText, setTypedText] = useState('');
-  const [isConfirmEnabled, setIsConfirmEnabled] = useState(!requireTyping);
+  const [wasOpen, setWasOpen] = useState(isOpen);
+  const isConfirmEnabled = requireTyping ? typedText.trim() === requireTyping.trim() : true;
 
-  // Compute enabled state from typed text
-  useEffect(() => {
-    if (!isOpen) {
-      setTypedText('');
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    setIsConfirmEnabled(requireTyping ? typedText.trim() === requireTyping.trim() : true);
-  }, [typedText, requireTyping]);
+  // Reset typed text when the dialog closes (adjust state during render, not in an effect)
+  if (wasOpen !== isOpen) {
+    setWasOpen(isOpen);
+    if (!isOpen) setTypedText('');
+  }
 
   // Close on Escape
   useEffect(() => {
